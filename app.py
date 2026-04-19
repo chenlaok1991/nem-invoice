@@ -14,6 +14,9 @@ from reportlab.platypus import Table, TableStyle
 import base64
 import tempfile
 import os
+import urllib.request
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 
 # ═══════════════════════════════════════════════════════════════
 # PASSWORD PROTECTION
@@ -39,6 +42,21 @@ if not st.session_state.authenticated:
 # ═══════════════════════════════════════════════════════════════
 # LOGO (base64 embedded for portability)
 # ═══════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════
+# CHINESE FONT (download once, cache in /tmp)
+# ═══════════════════════════════════════════════════════════════
+FONT_DIR = os.path.join(tempfile.gettempdir(), 'fonts')
+FONT_PATH = os.path.join(FONT_DIR, 'NotoSansSC-Regular.ttf')
+FONT_NAME = 'NotoSansSC'
+
+if not os.path.exists(FONT_PATH):
+    os.makedirs(FONT_DIR, exist_ok=True)
+    url = 'https://github.com/google/fonts/raw/main/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf'
+    urllib.request.urlretrieve(url, FONT_PATH)
+
+if FONT_NAME not in pdfmetrics.getRegisteredFontNames():
+    pdfmetrics.registerFont(TTFont(FONT_NAME, FONT_PATH))
+
 LOGO_B64 = None  # Will load from file if exists
 
 def get_logo_bytes():
@@ -59,13 +77,13 @@ MARGIN_TOP = 50
 CONTENT_WIDTH = letter[0] - MARGIN_LEFT - MARGIN_RIGHT
 LOGO_SIZE = 72
 
-def generate_invoice_pdf(client_name, client_address, date_str, item_desc, amount_val):
+def generate_invoice_pdf(client_name, client_address, date_str, due_date_str, item_desc, amount_val):
     """Generate invoice PDF and return bytes."""
     
     # Parse date
     date_obj = datetime.strptime(date_str, "%b %d, %Y")
     inv_num = f"{date_obj.month:02d}{date_obj.day:02d}{str(date_obj.year)[2:]}"
-    due_date = (date_obj + timedelta(days=30)).strftime("%b %d, %Y")
+    due_date = due_date_str
     fmt_amount = f"${amount_val:,.2f}"
     
     # Create PDF in memory
@@ -192,11 +210,11 @@ def generate_invoice_pdf(client_name, client_address, date_str, item_desc, amoun
     t.setStyle(TableStyle([
         ('BACKGROUND',  (0, 0), (-1, 0), SECONDARY),
         ('TEXTCOLOR',   (0, 0), (-1, 0), colors.white),
-        ('FONTNAME',    (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTNAME',    (0, 0), (-1, 0), 'NotoSansSC'),
         ('FONTSIZE',    (0, 0), (-1, 0), 10),
         ('TOPPADDING',  (0, 0), (-1, 0), 8),
         ('BOTTOMPADDING',(0, 0), (-1, 0), 8),
-        ('FONTNAME',    (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTNAME',    (0, 1), (-1, -1), 'NotoSansSC'),
         ('FONTSIZE',    (0, 1), (-1, -1), 10),
         ('TOPPADDING',  (0, 1), (-1, -1), 10),
         ('BOTTOMPADDING',(0, 1), (-1, -1), 10),
@@ -321,6 +339,7 @@ with col2:
 
 # Convert date
 date_str = date_val.strftime("%b %d, %Y")
+due_date_str = due_date_val.strftime("%b %d, %Y")
 inv_num_preview = f"{date_val.month:02d}{date_val.day:02d}{str(date_val.year)[2:]}"
 
 st.info(f"📄 Invoice Number: **{inv_num_preview}**")
@@ -337,7 +356,7 @@ if st.button("📥 Generate Invoice PDF", type="primary", use_container_width=Tr
         
         with st.spinner("Generating..."):
             pdf_bytes, inv_num = generate_invoice_pdf(
-                client_name, client_address, date_str, item_desc, amount_val
+                client_name, client_address, date_str, due_date_str, item_desc, amount_val
             )
         
         st.success(f"✅ Invoice #{inv_num} ready!")
