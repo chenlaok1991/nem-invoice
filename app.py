@@ -104,11 +104,11 @@ def generate_invoice_pdf(client_name, client_address, date_str, due_date_str, it
         c.drawImage(tmp_path, L, y, width=LOGO_SIZE, height=LOGO_SIZE, mask='auto')
         os.unlink(tmp_path)
     
-    c.setFont("Helvetica-Bold", 32)
+    c.setFont(FONT_NAME, 32)
     c.setFillColor(PRIMARY)
     c.drawRightString(R, H - MARGIN_TOP - 24, "INVOICE")
     
-    c.setFont("Helvetica", 13)
+    c.setFont(FONT_NAME, 13)
     c.setFillColor(GRAY)
     c.drawRightString(R, H - MARGIN_TOP - 44, f"No. {inv_num}")
     
@@ -122,15 +122,15 @@ def generate_invoice_pdf(client_name, client_address, date_str, due_date_str, it
     col_mid = L + CW * 0.38
     
     # Bill To
-    c.setFont("Helvetica-Bold", 9)
+    c.setFont(FONT_NAME, 9)
     c.setFillColor(GRAY)
     c.drawString(L, y, "BILL TO")
     y -= 18
-    c.setFont("Helvetica-Bold", 12)
+    c.setFont(FONT_NAME, 12)
     c.setFillColor(PRIMARY)
     c.drawString(L, y, client_name)
     y -= 16
-    c.setFont("Helvetica", 10)
+    c.setFont(FONT_NAME, 10)
     c.setFillColor(colors.black)
     for line in client_address.split('\n'):
         c.drawString(L, y, line.strip())
@@ -138,15 +138,15 @@ def generate_invoice_pdf(client_name, client_address, date_str, due_date_str, it
     
     # From + Dates
     ry = y_line - 24
-    c.setFont("Helvetica-Bold", 9)
+    c.setFont(FONT_NAME, 9)
     c.setFillColor(GRAY)
     c.drawString(col_mid, ry, "FROM")
     ry -= 16
-    c.setFont("Helvetica-Bold", 11)
+    c.setFont(FONT_NAME, 11)
     c.setFillColor(PRIMARY)
     c.drawString(col_mid, ry, "NEM Studios")
     ry -= 14
-    c.setFont("Helvetica", 10)
+    c.setFont(FONT_NAME, 10)
     c.setFillColor(colors.black)
     c.drawString(col_mid, ry, "620 Hacienda Dr, Monrovia, CA 91016")
     ry -= 14
@@ -154,23 +154,23 @@ def generate_invoice_pdf(client_name, client_address, date_str, due_date_str, it
     
     ry -= 26
     label_w = 65
-    c.setFont("Helvetica", 9)
+    c.setFont(FONT_NAME, 9)
     c.setFillColor(GRAY)
     c.drawString(col_mid, ry, "Date")
-    c.setFont("Helvetica-Bold", 10)
+    c.setFont(FONT_NAME, 10)
     c.setFillColor(colors.black)
     c.drawString(col_mid + label_w, ry, date_str)
     
     ry -= 18
-    c.setFont("Helvetica", 9)
+    c.setFont(FONT_NAME, 9)
     c.setFillColor(GRAY)
     c.drawString(col_mid, ry, "Due Date")
-    c.setFont("Helvetica-Bold", 10)
+    c.setFont(FONT_NAME, 10)
     c.setFillColor(colors.black)
     c.drawString(col_mid + label_w, ry, due_date)
     
     ry -= 32
-    c.setFont("Helvetica", 9)
+    c.setFont(FONT_NAME, 9)
     c.setFillColor(GRAY)
     c.drawString(col_mid, ry, "Balance Due")
     ry -= 12
@@ -178,7 +178,7 @@ def generate_invoice_pdf(client_name, client_address, date_str, due_date_str, it
     box_w = CW * 0.62
     c.setFillColor(LIGHT)
     c.roundRect(box_x, ry - 16, box_w, 22, 3, fill=True, stroke=False)
-    c.setFont("Helvetica-Bold", 10)
+    c.setFont(FONT_NAME, 10)
     c.setFillColor(PRIMARY)
     c.drawString(box_x + 12, ry - 9, fmt_amount)
     
@@ -225,7 +225,7 @@ def generate_invoice_pdf(client_name, client_address, date_str, due_date_str, it
     sum_x = R
     sum_y = table_top - 82
     
-    c.setFont("Helvetica", 10)
+    c.setFont(FONT_NAME, 10)
     c.setFillColor(colors.black)
     c.drawRightString(sum_x, sum_y, "Subtotal")
     c.drawRightString(sum_x - 75, sum_y, fmt_amount)
@@ -233,7 +233,7 @@ def generate_invoice_pdf(client_name, client_address, date_str, due_date_str, it
     sum_y -= 18
     c.setFillColor(GRAY)
     c.drawRightString(sum_x, sum_y, "Tax (0%)")
-    c.setFont("Helvetica", 10)
+    c.setFont(FONT_NAME, 10)
     c.setFillColor(colors.black)
     c.drawRightString(sum_x - 75, sum_y, "$0.00")
     
@@ -242,18 +242,18 @@ def generate_invoice_pdf(client_name, client_address, date_str, due_date_str, it
     total_bar_w = 160
     c.setFillColor(SECONDARY)
     c.roundRect(total_bar_x, sum_y - 3, total_bar_w, 20, 3, fill=True, stroke=False)
-    c.setFont("Helvetica-Bold", 10)
+    c.setFont(FONT_NAME, 10)
     c.setFillColor(colors.white)
     c.drawString(total_bar_x + 10, sum_y + 3, "Total")
     c.drawRightString(total_bar_x + total_bar_w - 10, sum_y + 3, fmt_amount)
     
     # ══ SECTION 5: Notes ══
     notes_y = table_top - 140
-    c.setFont("Helvetica-Bold", 9)
+    c.setFont(FONT_NAME, 9)
     c.setFillColor(GRAY)
     c.drawString(L, notes_y, "NOTES")
     notes_y -= 14
-    c.setFont("Helvetica", 9)
+    c.setFont(FONT_NAME, 9)
     c.setFillColor(colors.HexColor('#555555'))
     max_chars = int(CW / 5)
     words = item_desc.split()
@@ -275,7 +275,7 @@ def generate_invoice_pdf(client_name, client_address, date_str, due_date_str, it
     c.setLineWidth(0.5)
     c.line(L, terms_y + 10, R, terms_y + 10)
     
-    c.setFont("Helvetica-Bold", 9)
+    c.setFont(FONT_NAME, 9)
     c.setFillColor(GRAY)
     c.drawString(L, terms_y, "PAYMENT INFORMATION")
     
@@ -288,14 +288,14 @@ def generate_invoice_pdf(client_name, client_address, date_str, due_date_str, it
         "SWIFT: BOFAUS3N  |  Branch: Foothill-Rosemead",
         "Bank Address: 3555 E Foothill Blvd, Pasadena, CA 91107, US",
     ]
-    c.setFont("Helvetica", 8)
+    c.setFont(FONT_NAME, 8)
     c.setFillColor(colors.HexColor('#444444'))
     for line in terms_lines:
         c.drawString(L, terms_y, line)
         terms_y -= 12
     
     # Footer
-    c.setFont("Helvetica", 7)
+    c.setFont(FONT_NAME, 7)
     c.setFillColor(GRAY)
     c.drawCentredString(W / 2, 28, "NEM Studios  •  620 Hacienda Dr, Monrovia, CA 91016  •  Info@nemstudios.com")
     
