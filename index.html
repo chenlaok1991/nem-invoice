@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEM Studios — Invoice Generator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 28px 32px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        
+        .header img {
+            width: 44px;
+            height: 44px;
+            filter: brightness(0) invert(1);
+        }
+        
+        .header h1 {
+            color: white;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        
+        .header span {
+            color: rgba(255,255,255,0.65);
+            font-size: 12px;
+            margin-top: 2px;
+        }
+        
+        .form-area {
+            padding: 28px 32px;
+        }
+        
+        .field {
+            margin-bottom: 18px;
+        }
+        
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+        }
+        
+        input[type="text"],
+        input[type="date"],
+        textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            outline: none;
+            font-family: inherit;
+            background: #fafafa;
+        }
+        
+        input:focus, textarea:focus {
+            border-color: #16213e;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(22,33,62,0.08);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 72px;
+        }
+        
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .preview-info {
+            background: #f0f4ff;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-top: 18px;
+            font-size: 13px;
+            color: #16213e;
+            line-height: 1.5;
+        }
+        
+        .preview-info strong {
+            color: #1a1a2e;
+        }
+        
+        .btn-generate {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.2s ease;
+            letter-spacing: 0.3px;
+        }
+        
+        .btn-generate:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(22,33,62,0.35);
+        }
+        
+        .btn-generate:active {
+            transform: translateY(0);
+        }
+        
+        .btn-generate:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .status {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+        
+        .status.success { color: #16a34a; font-weight: 600; }
+        .status.error { color: #dc2626; }
+        .status.loading { color: #555; }
+        
+        .footer-note {
+            text-align: center;
+            padding: 16px;
+            font-size: 11px;
+            color: #999;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        /* Invoice number preview badge */
+        .inv-badge {
+            display: inline-block;
+            background: #16213e;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <img src="logo" alt="NEM Logo" id="logoImg">
+        <div>
+            <h1>NEM Studios Invoice</h1>
+            <span>Professional Invoice Generator</span>
+        </div>
+    </div>
+    
+    <form class="form-area" id="invoiceForm">
+        <div class="field">
+            <label>Client Company Name</label>
+            <input type="text" id="client_name" placeholder="e.g. Hexany Audio" required>
+        </div>
+        
+        <div class="field">
+            <label>Client Address</label>
+            <textarea id="client_address" placeholder="Street address&#10;City, State ZIP&#10;Country (if needed)" rows="3"></textarea>
+        </div>
+        
+        <div class="row">
+            <div class="field">
+                <label>Date</label>
+                <input type="text" id="date" placeholder="Feb 5, 2026" required>
+            </div>
+            <div class="field">
+                <label>Amount ($)</label>
+                <input type="text" id="amount" placeholder="105000" required>
+            </div>
+        </div>
+        
+        <div class="field">
+            <label>Item / Project Description</label>
+            <textarea id="item_description" placeholder="e.g. 电视剧《凤凰台上》BGM音乐制作费" rows="2"></textarea>
+        </div>
+        
+        <div class="preview-info">
+            📄 Invoice Number will be: <strong><span id="invPreview">—</span></strong>
+            &nbsp;(auto-generated from date)
+        </div>
+        
+        <button type="submit" class="btn-generate" id="genBtn">📥 Generate Invoice PDF</button>
+        
+        <div class="status" id="status"></div>
+    </form>
+    
+    <div class="footer-note">
+        PDF will be saved to your Desktop • NEM Studios © 2026
+    </div>
+</div>
+
+<script>
+// Auto-set today's date in the expected format
+const today = new Date();
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const dateStr = `${months[today.getMonth()]} ${today.getDate()}, ${today.getFullYear()}`;
+document.getElementById('date').value = dateStr;
+
+// Update invoice preview on date change
+function updateInvPreview() {
+    const d = document.getElementById('date').value;
+    if (!d) { document.getElementById('invPreview').textContent = '—'; return; }
+    
+    // Parse "Mon DD, YYYY"
+    const match = d.match(/(\w{3})\s+(\d{1,2}),?\s*(\d{4})/);
+    if (!match) { document.getElementById('invPreview').textContent = '—'; return; }
+    
+    const monthNum = months.indexOf(match[1]) + 1;
+    const dayNum = parseInt(match[2]);
+    const yearShort = match[3].slice(-2);
+    document.getElementById('invPreview').textContent = 
+        `${String(monthNum).padStart(2,'0')}${String(dayNum).padStart(2,'0')}${yearShort}`;
+}
+document.getElementById('date').addEventListener('input', updateInvPreview);
+updateInvPreview();
+
+// Form submission
+document.getElementById('invoiceForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const btn = document.getElementById('genBtn');
+    const status = document.getElementById('status');
+    
+    btn.disabled = true;
+    btn.textContent = '⏳ Generating...';
+    status.className = 'status loading';
+    status.textContent = 'Creating your invoice...';
+    
+    const data = {
+        client_name: document.getElementById('client_name').value.trim(),
+        client_address: document.getElementById('client_address').value.trim(),
+        date: document.getElementById('date').value.trim(),
+        item_description: document.getElementById('item_description').value.trim(),
+        amount: document.getElementById('amount').value.trim()
+    };
+    
+    try {
+        const resp = await fetch('/generate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        
+        const result = await resp.json();
+        
+        if (result.success) {
+            status.className = 'status success';
+            status.innerHTML = `✅ Invoice <strong>#${result.inv_num}</strong> saved!<br>${result.path}`;
+            
+            // Also open Finder to show the file
+            setTimeout(() => {
+                window.open(`file://${result.path}`, '_blank');
+            }, 500);
+        } else {
+            throw new Error(result.error || 'Unknown error');
+        }
+    } catch(err) {
+        status.className = 'status error';
+        status.textContent = `❌ Error: ${err.message}`;
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '📥 Generate Invoice PDF';
+    }
+});
+</script>
+
+</body>
+</html>
