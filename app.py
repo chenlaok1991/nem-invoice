@@ -334,8 +334,9 @@ with col1:
     amount_str = st.text_input("Amount ($)", placeholder="105000")
 
 with col2:
-    client_address = st.text_area("Client Address", placeholder="Street address\nCity, State ZIP\nCountry", height=90)
-    item_desc = st.text_area("Project Description", placeholder="电视剧《凤凰台上》BGM音乐制作费", height=90)
+    client_address = st.text_area("Client Address", placeholder="Street address\nCity, State ZIP\nCountry", height=68)
+    due_date_val = st.date_input("Due Date", value=datetime.today() + timedelta(days=30))
+    item_desc = st.text_area("Project Description", placeholder="电视剧《凤凰台上》BGM音乐制作费", height=68)
 
 # Convert date
 date_str = date_val.strftime("%b %d, %Y")
