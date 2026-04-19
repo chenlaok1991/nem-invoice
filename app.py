@@ -14,7 +14,6 @@ from reportlab.platypus import Table, TableStyle
 import base64
 import tempfile
 import os
-import urllib.request
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
@@ -43,19 +42,11 @@ if not st.session_state.authenticated:
 # LOGO (base64 embedded for portability)
 # ═══════════════════════════════════════════════════════════════
 # ═══════════════════════════════════════════════════════════════
-# CHINESE FONT (download once, cache in /tmp)
+# CHINESE FONT (bundled)
 # ═══════════════════════════════════════════════════════════════
-FONT_DIR = os.path.join(tempfile.gettempdir(), 'fonts')
-FONT_PATH = os.path.join(FONT_DIR, 'NotoSansSC-Regular.ttf')
 FONT_NAME = 'NotoSansSC'
-
-if not os.path.exists(FONT_PATH):
-    os.makedirs(FONT_DIR, exist_ok=True)
-    url = 'https://github.com/google/fonts/raw/main/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf'
-    urllib.request.urlretrieve(url, FONT_PATH)
-
-if FONT_NAME not in pdfmetrics.getRegisteredFontNames():
-    pdfmetrics.registerFont(TTFont(FONT_NAME, FONT_PATH))
+FONT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'NotoSansSC-Regular.ttf')
+pdfmetrics.registerFont(TTFont(FONT_NAME, FONT_PATH))
 
 LOGO_B64 = None  # Will load from file if exists
 
